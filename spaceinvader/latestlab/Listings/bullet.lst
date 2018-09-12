@@ -1,0 +1,772 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000                 AREA             bullet, CODE, READWRITE
+    2 00000000         
+    3 00000000                 extern           current_position
+    4 00000000                 extern           Initial_board
+    5 00000000                 extern           score
+    6 00000000                 extern           en_amount
+    7 00000000                 extern           update_en_status
+    8 00000000                 extern           RPG_RED
+    9 00000000                 extern           RPG_GREEN
+   10 00000000                 extern           atoi
+   11 00000000                 extern           itoa
+   12 00000000                 extern           led_score
+   13 00000000                 extern           div_and_mod
+   14 00000000                 EXPORT           shoot
+   15 00000000                 EXPORT           bullet_up
+   16 00000000                 EXPORT           new_led_score
+   17 00000000 5E      player_bullet
+                               =                0x5E
+   18 00000001         
+   19 00000001 00 00 00        ALIGN
+   20 00000004 01      bullet_enable
+                               =                0x01        ;
+   21 00000005         
+   22 00000005 00 00 00        ALIGN
+   23 00000008 01      bullet_pos
+                               =                0x0001      ;
+   24 00000009         
+   25 00000009 00 00 00        ALIGN
+   26 0000000C 30 30 30 
+              30 00    new_led_score
+                               =                "0000",0x00
+   27 00000011 00 00 00        ALIGN
+   28 00000014         
+   29 00000014         ;###################3
+   30 00000014         ;Shoot a bullets from player
+   31 00000014         ;arg none
+   32 00000014         ;retrn none
+   33 00000014         ;####################
+   34 00000014         shoot
+   35 00000014 E92D41F0        STMFD            SP!,{r4-r8,LR}
+   36 00000018         ;skip if shoot disable
+   37 00000018 E59F43BC        ldr              r4,=bullet_enable
+   38 0000001C E5D46000        ldrb             r6,[r4]
+   39 00000020 E3560000        cmp              r6,#0
+   40 00000024 0A00000D        beq              skip_shoot
+   41 00000028         ;initial bullets current_position
+   42 00000028 E59F43B0        ldr              r4,= current_position
+   43 0000002C E1D460B0        ldrh             r6,[r4]     ;
+   44 00000030 E59F53AC        ldr              r5,=Initial_board
+   45 00000034 E3A0705E        mov              r7,#0x5E
+   46 00000038 E59F83A8        ldr              r8,=0x15E
+   47 0000003C E0855008        add              R5,r8
+   48 00000040 E2866001        add              r6,#1       ; r6 is current pos
+                                                            ition
+   49 00000044 E7C57006        strb             r7,[r5,r6]
+   50 00000048         ;save bullet position
+   51 00000048 E59F439C        ldr              r4,=bullet_pos
+   52 0000004C E0866008        ADD              R6,R8       ;
+   53 00000050 E1C460B0        strh             r6,[r4]     ;
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   54 00000054         ;bullet disable
+   55 00000054 E59F4380        ldr              r4,=bullet_enable
+   56 00000058 E3A06000        mov              r6,#0x00    ;set 0 to disable
+   57 0000005C E5C46000        strb             r6,[r4]     ; 
+   58 00000060         skip_shoot
+   59 00000060         
+   60 00000060         
+   61 00000060 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+   62 00000064 E12FFF1E        BX               lr
+   63 00000068         
+   64 00000068         
+   65 00000068         ;#####mov bullet up 
+   66 00000068         ;return none
+   67 00000068         
+   68 00000068         ;#################3
+   69 00000068         bullet_up
+   70 00000068         ;########move_bullet up
+   71 00000068 E92D41F0        STMFD            SP!,{r4-r8,LR}
+   72 0000006C EBFFFFFE        BL               RPG_GREEN
+   73 00000070 E59F4364        ldr              r4,=bullet_enable
+   74 00000074 E5D46000        ldrb             r6,[r4]
+   75 00000078 E3560001        cmp              r6,#1
+   76 0000007C 0A000024        beq              skip_bulletup
+   77 00000080 EBFFFFFE        BL               RPG_RED
+   78 00000084         ;special case,see whats on the right
+   79 00000084         ; ldr r5,=Initial_board
+   80 00000084         ; ldr r4,=bullet_pos
+   81 00000084         ; ldrh r6,[r4]
+   82 00000084         ; sub r6,#1
+   83 00000084         ;see what on right
+   84 00000084         ; ldrb r8,[r5,r6]
+   85 00000084         ; cmp r8,#0x57
+   86 00000084         ; beq wr_hit
+   87 00000084         ; cmp r8,#0x4D
+   88 00000084         ; beq mr_hit
+   89 00000084         ; cmp r8,#0x4F
+   90 00000084         ; beq or_hit
+   91 00000084         
+   92 00000084         
+   93 00000084         
+   94 00000084         ;special case,see whats on the left
+   95 00000084         ; ldr r5,=Initial_board
+   96 00000084         ; ldr r4,=bullet_pos
+   97 00000084         ; ldrh r6,[r4]
+   98 00000084         ; add r6,#1
+   99 00000084         ;see what on right
+  100 00000084         ; ldrb r8,[r5,r6]
+  101 00000084         ; cmp r8,#0x57
+  102 00000084         ; beq wr_hit
+  103 00000084         ; cmp r8,#0x4D
+  104 00000084         ; beq mr_hit
+  105 00000084         ; cmp r8,#0x4F
+  106 00000084         ; beq or_hit
+  107 00000084         
+  108 00000084         
+  109 00000084         
+  110 00000084         ;REGULAR CHECK ON TOP
+  111 00000084 E59F5358        ldr              r5,=Initial_board
+  112 00000088 E59F435C        ldr              r4,=bullet_pos
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+  113 0000008C E1D460B0        ldrh             r6,[r4]
+  114 00000090         ;save position
+  115 00000090 E2466019        sub              r6,#25
+  116 00000094 E1C460B0        strh             r6,[r4]
+  117 00000098         ;see what on top
+  118 00000098 E7D58006        ldrb             r8,[r5,r6]
+  119 0000009C E358002D        cmp              r8,#0x2D
+  120 000000A0 0A000015        beq              top_hit
+  121 000000A4 E3580053        cmp              r8,#0x53
+  122 000000A8 0A0000C2        beq              ss_hit
+  123 000000AC E3580073        cmp              r8,#0x73
+  124 000000B0 0A0000B7        beq              bs_hit
+  125 000000B4 E3580057        cmp              r8,#0x57
+  126 000000B8 0A000019        beq              w_hit
+  127 000000BC E358004D        cmp              r8,#0x4D
+  128 000000C0 0A000044        beq              m_hit
+  129 000000C4 E358004F        cmp              r8,#0x4F
+  130 000000C8 0A00006F        beq              o_hit
+  131 000000CC E358005E        cmp              r8,#0x5E
+  132 000000D0 0A00009A        beq              b_hit
+  133 000000D4         ;moving bullet up
+  134 000000D4 E3A0705E        mov              r7,#0x5E
+  135 000000D8 E7D58006        ldrb             r8,[r5,r6]
+  136 000000DC E3580020        cmp              r8, #0x20
+  137 000000E0 07C57006        strbeq           r7,[r5,r6]
+  138 000000E4 E3A07020        mov              r7,#0x20
+  139 000000E8 E2866019        ADD              r6,#25
+  140 000000EC E7D58006        ldrb             r8,[r5,r6]
+  141 000000F0 E358005E        cmp              r8,#0x5E
+  142 000000F4 07C57006        strbeq           r7,[r5,r6]
+  143 000000F8 EA000007        b                bullet_done
+  144 000000FC         
+  145 000000FC         top_hit
+  146 000000FC E59F42D8        ldr              r4,=bullet_enable
+  147 00000100 E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  148 00000104 E5C48000        strb             r8,[r4]     ;
+  149 00000108 E2866019        add              r6,#25
+  150 0000010C E3A08020        mov              r8,#0x20
+  151 00000110 E7C58006        strb             r8,[r5,r6]
+  152 00000114         skip_bulletup
+  153 00000114         
+  154 00000114 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  155 00000118 E12FFF1E        BX               lr
+  156 0000011C         
+  157 0000011C         bullet_done
+  158 0000011C         
+  159 0000011C E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  160 00000120 E12FFF1E        BX               lr
+  161 00000124         
+  162 00000124         w_hit
+  163 00000124         
+  164 00000124 E59F42B0        ldr              r4,=bullet_enable
+  165 00000128 E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  166 0000012C E5C48000        strb             r8,[r4]     ;
+  167 00000130 E59F42B8        ldr              r4,=score   ; update score
+  168 00000134 E1D480B0        ldrh             r8,[r4]
+  169 00000138 E288800A        add              r8,#10      ;
+  170 0000013C E1C480B0        strh             r8,[r4]
+  171 00000140 E3A07020        mov              r7,#0x20
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+  172 00000144 E7C57006        strb             r7,[r5,r6]
+  173 00000148         
+  174 00000148         
+  175 00000148         ;update 7seg display
+  176 00000148 E59F42A4        ldr              r4,=led_score
+  177 0000014C EBFFFFFE        bl               atoi
+  178 00000150 E280000A        add              r0,#10      ;
+  179 00000154 E1A01000        mov              r1,r0
+  180 00000158 E3A0A003        mov              r10,#3
+  181 0000015C E3A0000A 
+                       div     mov              r0,#10
+  182 00000160 EBFFFFFE        bl               div_and_mod
+  183 00000164         ; cmp r0,#0
+  184 00000164 E1A03000        mov              r3,r0
+  185 00000168 E2811030        add              r1,#48
+  186 0000016C E7C4100A        strb             r1,[r4,r10]
+  187 00000170 E24AA001        sub              r10,#1
+  188 00000174 E35A0000        cmp              r10,#0
+  189 00000178 E1A01003        mov              r1,r3
+  190 0000017C 1AFFFFF6        bne              div
+  191 00000180 EBFFFFFE        bl               div_and_mod
+  192 00000184 E2811030        add              r1,#48
+  193 00000188 E5C41000        strb             r1,[r4]
+  194 0000018C         
+  195 0000018C         ;find bullet and get rid of it
+  196 0000018C E2866019        add              r6,#25
+  197 00000190 E7D58006        ldrb             r8,[r5,r6]
+  198 00000194 E358005E        cmp              r8,#0x5E
+  199 00000198 07C57006        strbeq           r7,[r5,r6]
+  200 0000019C E2466001        sub              r6,#1
+  201 000001A0 E7D58006        ldrb             r8,[r5,r6]
+  202 000001A4 E358005E        cmp              r8,#0x5E
+  203 000001A8 07C57006        strbeq           r7,[r5,r6]
+  204 000001AC E2866002        add              r6,#2
+  205 000001B0 E7D58006        ldrb             r8,[r5,r6]
+  206 000001B4 E358005E        cmp              r8,#0x5E
+  207 000001B8 07C57006        strbeq           r7,[r5,r6]
+  208 000001BC         
+  209 000001BC         ;enemy amount -1
+  210 000001BC E59F4234        ldr              r4,=en_amount
+  211 000001C0 E5D45000        ldrb             r5,[r4]     ;
+  212 000001C4 E2455001        sub              r5,#1       ;
+  213 000001C8 E5C45000        strb             r5,[r4]
+  214 000001CC         
+  215 000001CC         ;update enemy_status
+  216 000001CC EBFFFFFE        bl               update_en_status
+  217 000001D0 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  218 000001D4 E12FFF1E        BX               lr
+  219 000001D8         
+  220 000001D8         m_hit
+  221 000001D8 E59F41FC        ldr              r4,=bullet_enable
+  222 000001DC E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  223 000001E0 E5C48000        strb             r8,[r4]     ;
+  224 000001E4 E59F4204        ldr              r4,=score
+  225 000001E8 E1D480B0        ldrh             r8,[r4]
+  226 000001EC E2888014        add              r8,#20      ;
+  227 000001F0 E1C480B0        strh             r8,[r4]
+  228 000001F4 E3A07020        mov              r7,#0x20
+  229 000001F8 E7C57006        strb             r7,[r5,r6]
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  230 000001FC         
+  231 000001FC         
+  232 000001FC         
+  233 000001FC E59F41F0        ldr              r4,=led_score
+  234 00000200 EBFFFFFE        bl               atoi
+  235 00000204 E2800014        add              r0,#20      ;
+  236 00000208 E1A01000        mov              r1,r0
+  237 0000020C E3A0A003        mov              r10,#3
+  238 00000210         div2
+  239 00000210 E3A0000A        mov              r0,#10
+  240 00000214 EBFFFFFE        bl               div_and_mod
+  241 00000218         ; cmp r0,#0
+  242 00000218 E1A03000        mov              r3,r0
+  243 0000021C E2811030        add              r1,#48
+  244 00000220 E7C4100A        strb             r1,[r4,r10]
+  245 00000224 E24AA001        sub              r10,#1
+  246 00000228 E35A0000        cmp              r10,#0
+  247 0000022C E1A01003        mov              r1,r3
+  248 00000230 1AFFFFF6        bne              div2
+  249 00000234 EBFFFFFE        bl               div_and_mod
+  250 00000238 E2811030        add              r1,#48
+  251 0000023C E5C41000        strb             r1,[r4]
+  252 00000240         
+  253 00000240         ;find bullet and get rid of it
+  254 00000240 E2866019        add              r6,#25
+  255 00000244 E7D58006        ldrb             r8,[r5,r6]
+  256 00000248 E358005E        cmp              r8,#0x5E
+  257 0000024C 07C57006        strbeq           r7,[r5,r6]
+  258 00000250 E2466001        sub              r6,#1
+  259 00000254 E7D58006        ldrb             r8,[r5,r6]
+  260 00000258 E358005E        cmp              r8,#0x5E
+  261 0000025C 07C57006        strbeq           r7,[r5,r6]
+  262 00000260 E2866002        add              r6,#2
+  263 00000264 E7D58006        ldrb             r8,[r5,r6]
+  264 00000268 E358005E        cmp              r8,#0x5E
+  265 0000026C 07C57006        strbeq           r7,[r5,r6]
+  266 00000270         
+  267 00000270         ;enemy amount -1
+  268 00000270 E59F4180        ldr              r4,=en_amount
+  269 00000274 E5D45000        ldrb             r5,[r4]     ;
+  270 00000278 E2455001        sub              r5,#1       ;
+  271 0000027C E5C45000        strb             r5,[r4]
+  272 00000280         
+  273 00000280         ;update enemy_status
+  274 00000280 EBFFFFFE        bl               update_en_status
+  275 00000284 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  276 00000288 E12FFF1E        BX               lr
+  277 0000028C         
+  278 0000028C         o_hit
+  279 0000028C E59F4148        ldr              r4,=bullet_enable
+  280 00000290 E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  281 00000294 E5C48000        strb             r8,[r4]     ;
+  282 00000298 E59F4150        ldr              r4,=score
+  283 0000029C E1D480B0        ldrh             r8,[r4]
+  284 000002A0 E2888028        add              r8,#40      ;
+  285 000002A4 E1C480B0        strh             r8,[r4]
+  286 000002A8 E3A07020        mov              r7,#0x20
+  287 000002AC E7C57006        strb             r7,[r5,r6]
+  288 000002B0         
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+  289 000002B0         
+  290 000002B0         
+  291 000002B0 E59F413C        ldr              r4,=led_score
+  292 000002B4 EBFFFFFE        bl               atoi
+  293 000002B8 E2800028        add              r0,#40      ;
+  294 000002BC E1A01000        mov              r1,r0
+  295 000002C0 E3A0A003        mov              r10,#3
+  296 000002C4         div3
+  297 000002C4 E3A0000A        mov              r0,#10
+  298 000002C8 EBFFFFFE        bl               div_and_mod
+  299 000002CC         ; cmp r0,#0
+  300 000002CC E1A03000        mov              r3,r0
+  301 000002D0 E2811030        add              r1,#48
+  302 000002D4 E7C4100A        strb             r1,[r4,r10]
+  303 000002D8 E24AA001        sub              r10,#1
+  304 000002DC E35A0000        cmp              r10,#0
+  305 000002E0 E1A01003        mov              r1,r3
+  306 000002E4 1AFFFFF6        bne              div3
+  307 000002E8 EBFFFFFE        bl               div_and_mod
+  308 000002EC E2811030        add              r1,#48
+  309 000002F0 E5C41000        strb             r1,[r4]
+  310 000002F4         
+  311 000002F4         ;find bullet and get rid of it
+  312 000002F4 E2866019        add              r6,#25
+  313 000002F8 E7D58006        ldrb             r8,[r5,r6]
+  314 000002FC E358005E        cmp              r8,#0x5E
+  315 00000300 07C57006        strbeq           r7,[r5,r6]
+  316 00000304 E2466001        sub              r6,#1
+  317 00000308 E7D58006        ldrb             r8,[r5,r6]
+  318 0000030C E358005E        cmp              r8,#0x5E
+  319 00000310 07C57006        strbeq           r7,[r5,r6]
+  320 00000314 E2866002        add              r6,#2
+  321 00000318 E7D58006        ldrb             r8,[r5,r6]
+  322 0000031C E358005E        cmp              r8,#0x5E
+  323 00000320 07C57006        strbeq           r7,[r5,r6]
+  324 00000324         
+  325 00000324         ;enemy amount -1
+  326 00000324 E59F40CC        ldr              r4,=en_amount
+  327 00000328 E5D45000        ldrb             r5,[r4]     ;
+  328 0000032C E2455001        sub              r5,#1       ;
+  329 00000330 E5C45000        strb             r5,[r4]
+  330 00000334         
+  331 00000334         ;update enemy_status
+  332 00000334 EBFFFFFE        bl               update_en_status
+  333 00000338         
+  334 00000338 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  335 0000033C E12FFF1E        BX               lr
+  336 00000340         
+  337 00000340         b_hit
+  338 00000340 E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  339 00000344 E5C48000        strb             r8,[r4]     ;
+  340 00000348 E3A07020        mov              r7,#0x20
+  341 0000034C E7C57006        strb             r7,[r5,r6]
+  342 00000350 E2866019        add              r6,#25
+  343 00000354 E7C57006        strb             r7,[r5,r6]
+  344 00000358         
+  345 00000358         ;find bullet and get rid of it
+  346 00000358 E2866019        add              r6,#25
+  347 0000035C E7D58006        ldrb             r8,[r5,r6]
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+  348 00000360 E358005E        cmp              r8,#0x5E
+  349 00000364 07C57006        strbeq           r7,[r5,r6]
+  350 00000368 E2466001        sub              r6,#1
+  351 0000036C E7D58006        ldrb             r8,[r5,r6]
+  352 00000370 E358005E        cmp              r8,#0x5E
+  353 00000374 07C57006        strbeq           r7,[r5,r6]
+  354 00000378 E2866002        add              r6,#2
+  355 0000037C E7D58006        ldrb             r8,[r5,r6]
+  356 00000380 E358005E        cmp              r8,#0x5E
+  357 00000384 07C57006        strbeq           r7,[r5,r6]
+  358 00000388         
+  359 00000388         ;update enemy_status
+  360 00000388 EBFFFFFE        bl               update_en_status
+  361 0000038C         
+  362 0000038C E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  363 00000390 E12FFF1E        BX               lr
+  364 00000394         
+  365 00000394         
+  366 00000394         bs_hit
+  367 00000394         
+  368 00000394 E59F4040        ldr              r4,=bullet_enable
+  369 00000398 E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  370 0000039C E5C48000        strb             r8,[r4]     ;
+  371 000003A0 E3A07020        mov              r7,#0x20
+  372 000003A4 E7C57006        strb             r7,[r5,r6]
+  373 000003A8         
+  374 000003A8         ;find bullet and get rid of it
+  375 000003A8 E2866019        add              r6,#25
+  376 000003AC 07C57006        strbeq           r7,[r5,r6]
+  377 000003B0         
+  378 000003B0 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  379 000003B4 E12FFF1E        BX               lr
+  380 000003B8         
+  381 000003B8         
+  382 000003B8         ss_hit
+  383 000003B8         
+  384 000003B8 E59F401C        ldr              r4,=bullet_enable
+  385 000003BC E3A08001        mov              r8,#0x01    ;set 1 to ensable
+  386 000003C0 E5C48000        strb             r8,[r4]     ;
+  387 000003C4 E3A07073        mov              r7,#0x73
+  388 000003C8 E7C57006        strb             r7,[r5,r6]
+  389 000003CC         
+  390 000003CC         ;find bullet and get rid of it
+  391 000003CC E2866019        add              r6,#25
+  392 000003D0 07C57006        strbeq           r7,[r5,r6]
+  393 000003D4         
+  394 000003D4         
+  395 000003D4 E8BD41F0        LDMFD            SP!,{r4-r8,LR}
+  396 000003D8 E12FFF1E        BX               lr
+  397 000003DC         
+  398 000003DC                 END
+              00000000 
+              00000000 
+              00000000 
+              0000015E 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+Command Line: --debug --xref --diag_suppress=9931 --apcs=interwork --depend=.\o
+bjects\bullet.d -o.\objects\bullet.o -IC:\Keil_v5\ARM\RV31\INC -IC:\Keil_v5\ARM
+\CMSIS\Include -IC:\Keil_v5\ARM\INC\Philips --predefine="__EVAL SETA 1" --prede
+fine="__UVISION_VERSION SETA 524" --list=.\listings\bullet.lst bullet.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+b_hit 00000340
+
+Symbol: b_hit
+   Definitions
+      At line 337 in file bullet.s
+   Uses
+      At line 132 in file bullet.s
+Comment: b_hit used once
+bs_hit 00000394
+
+Symbol: bs_hit
+   Definitions
+      At line 366 in file bullet.s
+   Uses
+      At line 124 in file bullet.s
+Comment: bs_hit used once
+bullet 00000000
+
+Symbol: bullet
+   Definitions
+      At line 1 in file bullet.s
+   Uses
+      None
+Comment: bullet unused
+bullet_done 0000011C
+
+Symbol: bullet_done
+   Definitions
+      At line 157 in file bullet.s
+   Uses
+      At line 143 in file bullet.s
+Comment: bullet_done used once
+bullet_enable 00000004
+
+Symbol: bullet_enable
+   Definitions
+      At line 20 in file bullet.s
+   Uses
+      At line 37 in file bullet.s
+      At line 55 in file bullet.s
+      At line 73 in file bullet.s
+      At line 146 in file bullet.s
+      At line 164 in file bullet.s
+      At line 221 in file bullet.s
+      At line 279 in file bullet.s
+      At line 368 in file bullet.s
+      At line 384 in file bullet.s
+
+bullet_pos 00000008
+
+Symbol: bullet_pos
+   Definitions
+      At line 23 in file bullet.s
+   Uses
+      At line 51 in file bullet.s
+      At line 112 in file bullet.s
+
+bullet_up 00000068
+
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: bullet_up
+   Definitions
+      At line 69 in file bullet.s
+   Uses
+      At line 15 in file bullet.s
+Comment: bullet_up used once
+div 0000015C
+
+Symbol: div
+   Definitions
+      At line 181 in file bullet.s
+   Uses
+      At line 190 in file bullet.s
+Comment: div used once
+div2 00000210
+
+Symbol: div2
+   Definitions
+      At line 238 in file bullet.s
+   Uses
+      At line 248 in file bullet.s
+Comment: div2 used once
+div3 000002C4
+
+Symbol: div3
+   Definitions
+      At line 296 in file bullet.s
+   Uses
+      At line 306 in file bullet.s
+Comment: div3 used once
+m_hit 000001D8
+
+Symbol: m_hit
+   Definitions
+      At line 220 in file bullet.s
+   Uses
+      At line 128 in file bullet.s
+Comment: m_hit used once
+new_led_score 0000000C
+
+Symbol: new_led_score
+   Definitions
+      At line 26 in file bullet.s
+   Uses
+      At line 16 in file bullet.s
+Comment: new_led_score used once
+o_hit 0000028C
+
+Symbol: o_hit
+   Definitions
+      At line 278 in file bullet.s
+   Uses
+      At line 130 in file bullet.s
+Comment: o_hit used once
+player_bullet 00000000
+
+Symbol: player_bullet
+   Definitions
+      At line 17 in file bullet.s
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      None
+Comment: player_bullet unused
+shoot 00000014
+
+Symbol: shoot
+   Definitions
+      At line 34 in file bullet.s
+   Uses
+      At line 14 in file bullet.s
+Comment: shoot used once
+skip_bulletup 00000114
+
+Symbol: skip_bulletup
+   Definitions
+      At line 152 in file bullet.s
+   Uses
+      At line 76 in file bullet.s
+Comment: skip_bulletup used once
+skip_shoot 00000060
+
+Symbol: skip_shoot
+   Definitions
+      At line 58 in file bullet.s
+   Uses
+      At line 40 in file bullet.s
+Comment: skip_shoot used once
+ss_hit 000003B8
+
+Symbol: ss_hit
+   Definitions
+      At line 382 in file bullet.s
+   Uses
+      At line 122 in file bullet.s
+Comment: ss_hit used once
+top_hit 000000FC
+
+Symbol: top_hit
+   Definitions
+      At line 145 in file bullet.s
+   Uses
+      At line 120 in file bullet.s
+Comment: top_hit used once
+w_hit 00000124
+
+Symbol: w_hit
+   Definitions
+      At line 162 in file bullet.s
+   Uses
+      At line 126 in file bullet.s
+Comment: w_hit used once
+20 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+Initial_board 00000000
+
+Symbol: Initial_board
+   Definitions
+      At line 4 in file bullet.s
+   Uses
+      At line 44 in file bullet.s
+      At line 111 in file bullet.s
+
+RPG_GREEN 00000000
+
+Symbol: RPG_GREEN
+   Definitions
+      At line 9 in file bullet.s
+   Uses
+      At line 72 in file bullet.s
+Comment: RPG_GREEN used once
+RPG_RED 00000000
+
+Symbol: RPG_RED
+   Definitions
+      At line 8 in file bullet.s
+   Uses
+      At line 77 in file bullet.s
+Comment: RPG_RED used once
+atoi 00000000
+
+Symbol: atoi
+   Definitions
+      At line 10 in file bullet.s
+   Uses
+      At line 177 in file bullet.s
+      At line 234 in file bullet.s
+      At line 292 in file bullet.s
+
+current_position 00000000
+
+Symbol: current_position
+   Definitions
+      At line 3 in file bullet.s
+   Uses
+      At line 42 in file bullet.s
+Comment: current_position used once
+div_and_mod 00000000
+
+Symbol: div_and_mod
+   Definitions
+      At line 13 in file bullet.s
+   Uses
+      At line 182 in file bullet.s
+      At line 191 in file bullet.s
+      At line 240 in file bullet.s
+      At line 249 in file bullet.s
+      At line 298 in file bullet.s
+      At line 307 in file bullet.s
+
+en_amount 00000000
+
+Symbol: en_amount
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+External symbols
+
+   Definitions
+      At line 6 in file bullet.s
+   Uses
+      At line 210 in file bullet.s
+      At line 268 in file bullet.s
+      At line 326 in file bullet.s
+
+itoa 00000000
+
+Symbol: itoa
+   Definitions
+      At line 11 in file bullet.s
+   Uses
+      None
+Comment: itoa unused
+led_score 00000000
+
+Symbol: led_score
+   Definitions
+      At line 12 in file bullet.s
+   Uses
+      At line 176 in file bullet.s
+      At line 233 in file bullet.s
+      At line 291 in file bullet.s
+
+score 00000000
+
+Symbol: score
+   Definitions
+      At line 5 in file bullet.s
+   Uses
+      At line 167 in file bullet.s
+      At line 224 in file bullet.s
+      At line 282 in file bullet.s
+
+update_en_status 00000000
+
+Symbol: update_en_status
+   Definitions
+      At line 7 in file bullet.s
+   Uses
+      At line 216 in file bullet.s
+      At line 274 in file bullet.s
+      At line 332 in file bullet.s
+      At line 360 in file bullet.s
+
+11 symbols
+365 symbols in table

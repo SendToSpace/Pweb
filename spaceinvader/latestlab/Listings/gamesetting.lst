@@ -1,0 +1,1080 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000                 AREA             GAMESETTING, CODE,READWRITE
+    2 00000000                 extern           hex_to_int
+    3 00000000                 extern           en_move_right
+    4 00000000                 extern           en_move_left
+    5 00000000                 extern           en_move_down
+    6 00000000                 extern           Initial_board
+    7 00000000                 extern           en_amount
+    8 00000000                 extern           current_position
+    9 00000000                 extern           player_setup
+   10 00000000                 extern           rng
+   11 00000000                 extern           left_pos
+   12 00000000                 extern           right_pos
+   13 00000000                 extern           how_many_down_move_left
+   14 00000000                 extern           player1
+   15 00000000                 extern           left_topmost
+   16 00000000                 extern           left2_topmost
+   17 00000000                 extern           left3_topmost
+   18 00000000                 extern           left4_topmost
+   19 00000000                 extern           left5_topmost
+   20 00000000                 extern           left6_topmost
+   21 00000000                 extern           left7_topmost
+   22 00000000                 extern           left_most_colum
+   23 00000000                 extern           output_string
+   24 00000000                 extern           div_and_mod
+   25 00000000                 extern           led_score
+   26 00000000                 EXPORT           level
+   27 00000000                 EXPORT           lives
+   28 00000000                 EXPORT           score
+   29 00000000                 EXPORT           enemy_move
+   30 00000000                 EXPORT           movement_direction_control ; th
+                                                            ese two control the
+                                                             enemy pathing
+   31 00000000                 EXPORT           next_move   ;
+   32 00000000                 EXPORT           game_instruction
+   33 00000000                 EXPORT           game_feature
+   34 00000000                 EXPORT           press_s_to_start
+   35 00000000                 EXPORT           check_level_clear
+   36 00000000                 EXPORT           print_scores
+   37 00000000 54 68 65 
+              20 4F 42 
+              6A 65 63 
+              74 69 76 
+              65 20 6F 
+              66 20 74 
+              68 69 73 
+              20 67 61 
+              6D 65 20 
+              69 73 20 
+              74 6F 20 
+              6B 69 6C 
+              6C 20 61 
+              6C 6C 20 
+              65 6E 65 
+              6D 79 20 
+              62 65 66 
+              6F 72 65 
+              20 32 20 
+              6D 69 6E 
+              75 74 73 
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+              20 65 61 
+              63 68 20 
+              6C 65 76 
+              65 6C 20 
+              73 70 65 
+              65 64 20 
+              6F 66 20 
+              65 6E 65 
+              6D 79 20 
+              69 6E 63 
+              72 65 61 
+              73 65 2E 
+              20 55 73 
+              65 20 73 
+              70 61 63 
+              65 20 74 
+              6F 20 73 
+              68 6F 6F 
+              74 20 61 
+              6E 64 20 
+              61 2C 64 
+              20 74 6F 
+              20 6D 6F 
+              76 65 2D 
+              0A 00    game_instruction
+                               =                "The OBjective of this game is 
+to kill all enemy before 2 minuts each level speed of enemy increase. Use space
+ to shoot and a,d to move",0x2D,0xA,0x00
+   38 00000089 77 61 72 
+              6E 69 6E 
+              67 2C 20 
+              70 6C 65 
+              61 73 65 
+              20 64 6F 
+              6E 27 74 
+              20 73 68 
+              6F 6F 74 
+              20 74 68 
+              65 20 72 
+              69 67 68 
+              74 20 74 
+              6F 70 20 
+              6D 6F 73 
+              74 20 65 
+              6E 65 6D 
+              79 20 62 
+              65 66 6F 
+              72 65 20 
+              6B 69 6C 
+              6C 20 74 
+              68 65 20 
+              65 6E 65 
+              6D 79 20 
+              6F 6E 20 
+              69 74 73 
+              20 62 6F 
+              74 74 6F 
+              6D 2C 20 
+              74 68 65 
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+              20 6D 6F 
+              74 68 65 
+              72 20 77 
+              69 6C 6C 
+              20 62 65 
+              20 73 61 
+              64 21 21 
+              2C 20 61 
+              6E 64 20 
+              79 6F 75 
+              20 73 68 
+              61 6C 6C 
+              20 6E 6F 
+              74 20 70 
+              61 73 73 
+              2D 0A 00 game_feature
+                               =                "warning, please don't shoot th
+e right top most enemy before kill the enemy on its bottom, the mother will be 
+sad!!, and you shall not pass",0x2D,0xA,0x00
+   39 00000116 50 72 65 
+              73 73 20 
+              73 20 74 
+              6F 20 73 
+              74 61 72 
+              74 00    press_s_to_start
+                               =                "Press s to start",0x00
+   40 00000127         
+   41 00000127 00              ALIGN
+   42 00000128         
+   59 00000128 2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              0D 0A 7C 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              7C 0D 0A 
+              7C 20 20 
+              20 20 20 
+              20 20 4F 
+              4F 4F 4F 
+              4F 4F 4F 
+              20 20 20 
+              20 20 20 
+              20 7C 0D 
+              0A 7C 20 
+              20 20 20 
+              20 20 20 
+              4D 4D 4D 
+              4D 4D 4D 
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+              4D 20 20 
+              20 20 20 
+              20 20 7C 
+              0D 0A 7C 
+              20 20 20 
+              20 20 20 
+              20 4D 4D 
+              4D 4D 4D 
+              4D 4D 20 
+              20 20 20 
+              20 20 20 
+              7C 0D 0A 
+              7C 20 20 
+              20 20 20 
+              20 20 57 
+              57 57 57 
+              57 57 57 
+              20 20 20 
+              20 20 20 
+              20 7C 0D 
+              0A 7C 20 
+              20 20 20 
+              20 20 20 
+              57 57 57 
+              57 57 57 
+              57 20 20 
+              20 20 20 
+              20 20 7C 
+              0D 0A 7C 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              7C 0D 0A 
+              7C 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 7C 0D 
+              0A 7C 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 7C 
+              0D 0A 7C 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+              20 20 20 
+              20 20 20 
+              7C 0D 0A 
+              7C 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 7C 0D 
+              0A 7C 20 
+              20 20 53 
+              53 53 20 
+              20 20 53 
+              53 53 20 
+              20 20 53 
+              53 53 20 
+              20 20 7C 
+              0D 0A 7C 
+              20 20 20 
+              73 20 73 
+              20 20 20 
+              73 20 73 
+              20 20 20 
+              73 20 73 
+              20 20 20 
+              7C 0D 0A 
+              7C 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 20 20 
+              20 7C 0D 
+              00       new_board
+                               =                0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0
+x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,0x2D,
+0x2D,0x2D,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x
+20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20
+,0x20,0x20,0x20,0x20,0x20,0x20,0x4F,0x4F,0x4F,0x4F,0x4F,0x4F,0x4F,0x20,0x20,0x2
+0,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,
+0x4D,0x4D,0x4D,0x4D,0x4D,0x4D,0x4D,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D
+, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x4D,0x4D,0x4D,0x4D,0x4D,0x4D,0
+x4D,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x2
+0,0x20,0x20,0x20,0x57,0x57,0x57,0x57,0x57,0x57,0x57,0x20,0x20,0x20,0x20,0x20,0x
+20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x57,0x57,0x57
+,0x57,0x57,0x57,0x57,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0
+x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,
+0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x
+20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0
+x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x2
+0,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,
+0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20
+,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0
+x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7
+C,0x20,0x20,0x20,0x53,0x53,0x53,0x20,0x20,0x20,0x53,0x53,0x53,0x20,0x20,0x20,0x
+53,0x53,0x53,0x20,0x20,0x20,0x7C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x73,0x20,0x73
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+,0x20,0x20,0x20,0x73,0x20,0x73,0x20,0x20,0x20,0x73,0x20,0x73,0x20,0x20,0x20,0x7
+C,0x0D, 0x0A,0x7C,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,
+0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x7C,0x0D, 0x00
+   60 000002A0                 ALIGN
+   61 000002A0         
+   62 000002A0 0D 0A 4C 
+              65 76 65 
+              6C 20 31 
+              00       level   =                0x0D,0x0A,"Level 1",0x00
+   63 000002AA 00 00           ALIGN
+   64 000002AC 04      lives   =                0x04
+   65 000002AD 00 00 00        ALIGN
+   66 000002B0 00 00   score   =                0x0000,0x00
+   67 000002B2 00 00           ALIGN
+   68 000002B4 73 63 6F 
+              72 65 73 
+              20 30 30 
+              30 30 00 displayscore
+                               =                "scores 0000",0x00
+   69 000002C0                 ALIGN
+   70 000002C0 01 02 03 
+              02 00    movement_direction_control
+                               =                1,2,3,2,0x00 ;2 is down |1 is r
+                                                            ight| 3 is left
+   71 000002C5 00 00 00        ALIGN
+   72 000002C8 00      next_move
+                               =                0
+   73 000002C9 00 00 00        ALIGN
+   74 000002CC         
+   75 000002CC 01      enemy_initial_move
+                               =                1
+   76 000002CD 00 00 00        ALIGN
+   77 000002D0 30 30 30 
+              30 00    new_led_score
+                               =                "0000",0x00 ;   
+   78 000002D5 00 00 00        ALIGN
+   79 000002D8         ;#####set the pathing for enemy
+   80 000002D8         enemy_move
+   81 000002D8 E92D4070        STMFD            SP!,{LR,r4-r6}
+   82 000002DC         ;move rng
+   83 000002DC E59F5204        ldr              r5,= enemy_initial_move
+   84 000002E0 E5956000        ldr              r6,[r5]
+   85 000002E4 E3560001        cmp              r6,#1
+   86 000002E8 0A000013        beq              initial_move
+   87 000002EC         
+   88 000002EC         ;check next move
+   89 000002EC E59F51F8        ldr              r5,=movement_direction_control
+   90 000002F0 E59F41F8        ldr              r4,= next_move
+   91 000002F4 E5D44000        ldrb             r4,[r4]
+   92 000002F8 E7D56004        ldrb             r6,[r5,r4]  ;
+   93 000002FC         
+   94 000002FC         ;check if r6 is 0x00
+   95 000002FC E3560000        cmp              r6,#0x00
+   96 00000300         ;when the cycle reach to end
+   97 00000300 059F41E8        ldreq            r4,= next_move
+   98 00000304 05C46000        strbeq           r6,[r4]
+   99 00000308 03A04000        moveq            r4,#0       ; reset the cycle
+  100 0000030C         
+  101 0000030C 07D56004        ldrbeq           r6,[r5,r4]  ;reset the value
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+  102 00000310         
+  103 00000310 E3560002        cmp              r6,#2
+  104 00000314 0A000003        beq              mv_down
+  105 00000318 E3560001        cmp              r6,#1
+  106 0000031C 0A000003        beq              mv_right
+  107 00000320 EBFFFFFE        bl               en_move_left
+  108 00000324 EA000002        b                mv_done
+  109 00000328         mv_down
+  110 00000328 EBFFFFFE        bl               en_move_down
+  111 0000032C EA000000        b                mv_done
+  112 00000330         mv_right
+  113 00000330 EBFFFFFE        bl               en_move_right
+  114 00000334         mv_done
+  115 00000334 E8BD4070        LDMFD            SP!,{LR,r4-r6}
+  116 00000338 E12FFF1E        BX               lr
+  117 0000033C         
+  118 0000033C         initial_move
+  119 0000033C         ;######testing rng#######
+  120 0000033C E3A00003        mov              r0,#3
+  121 00000340 EBFFFFFE        bl               rng         ;
+  122 00000344 E3500002        cmp              r0,#2
+  123 00000348 0BFFFFFE        bleq             en_move_left
+  124 0000034C E3500001        cmp              r0,#1
+  125 00000350 0BFFFFFE        bleq             en_move_right
+  126 00000354 E3A06000        mov              r6,#0
+  127 00000358 E5C56000        strb             r6,[r5]     ;
+  128 0000035C E8BD4070        LDMFD            SP!,{LR,r4-r6}
+  129 00000360 E12FFF1E        BX               lr
+  130 00000364         ;#####set the pathing for enemy  
+  131 00000364         
+  132 00000364         
+  133 00000364         ;######check if level cler
+  134 00000364         check_level_clear
+  135 00000364 E92D41F1        STMFD            SP!,{LR,r4-r8,r0}
+  136 00000368 E59F4184        ldr              r4,=en_amount
+  137 0000036C E5D45000        ldrb             r5,[r4]
+  138 00000370 E3550000        cmp              r5,#0       ;
+  139 00000374 0A000000        beq              new_level
+  140 00000378 EA000046        b                skip_level_clear
+  141 0000037C         ;reprint the board
+  142 0000037C         new_level
+  143 0000037C E59F6174        ldr              r6 ,=Initial_board
+  144 00000380 E59F7174        ldr              r7,=new_board
+  145 00000384         board_loop
+  146 00000384 E4D78001        ldrb             r8,[r7],#1
+  147 00000388 E4C68001        strb             r8,[r6],#1
+  148 0000038C E3580000        cmp              r8,#0x00
+  149 00000390 1AFFFFFB        bne              board_loop
+  150 00000394 0AFFFFFF        beq              new_level_done
+  151 00000398         ;reprint the board
+  152 00000398         
+  153 00000398         new_level_done
+  154 00000398         
+  155 00000398         ;reset counter for timer1
+  156 00000398         ;LDR r4, =0xE0008004
+  157 00000398         ;ldr r5,[r4]
+  158 00000398         ;orr r5,#2
+  159 00000398         ;str r5,[r4]
+  160 00000398         ;ldr r5,[r4]
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+  161 00000398         ;BIC r5,#2
+  162 00000398         ;strb r5,[r4]
+  163 00000398         ;reset counter for timer1
+  164 00000398         ;reset enemy amount
+  165 00000398 E59F4154        ldr              r4,=en_amount
+  166 0000039C E3A05023        mov              r5,#0x23
+  167 000003A0 E5C45000        strb             r5,[r4]
+  168 000003A4         ;reset player poition
+  169 000003A4 E59F4154        ldr              r4,=current_position
+  170 000003A8 E5945000        ldr              r5,[r4]
+  171 000003AC E59F6150        ldr              r6,=player1
+  172 000003B0 E3A07020        mov              r7,#0x20
+  173 000003B4 E7C67005        strb             r7,[r6,r5]
+  174 000003B8         ;get rid of old player
+  175 000003B8 E3A0500B        mov              r5,#0x0B
+  176 000003BC E5C45000        strb             r5,[r4]
+  177 000003C0 EBFFFFFE        bl               player_setup
+  178 000003C4         ;increment level 
+  179 000003C4 E59F413C        ldr              r4,=level
+  180 000003C8 E5D40008        ldrb             r0,[r4,#8]
+  181 000003CC EBFFFFFE        bl               hex_to_int
+  182 000003D0 E2800031        add              r0,#49      ;
+  183 000003D4 E5C40008        strb             r0,[r4,#8]  ;
+  184 000003D8         ;reset left right position of enemy 
+  185 000003D8 E59F412C        ldr              r4,=left_pos
+  186 000003DC E3A0503B        mov              r5,#0x003B
+  187 000003E0 E1C450B0        strh             r5,[r4]
+  188 000003E4 E59F4124        ldr              r4,=right_pos
+  189 000003E8 E3A05041        mov              r5,#0x0041
+  190 000003EC E1C450B0        strh             r5,[r4]
+  191 000003F0         ;reset enemy down 
+  192 000003F0 E59F411C        ldr              r4,=how_many_down_move_left
+  193 000003F4 E3A05005        mov              r5,#0x05
+  194 000003F8 E5C45000        strb             r5,[r4]
+  195 000003FC         ;reset enemy initial move random move
+  196 000003FC E59F40E4        ldr              r4,=enemy_initial_move
+  197 00000400 E3A05001        mov              r5,#1
+  198 00000404 E5C45000        strb             r5,[r4]
+  199 00000408         ;reset 7enemys position 
+  200 00000408 E59F4108        ldr              r4,=left_topmost
+  201 0000040C E3A0503B        ldr              r5,=0x003B
+  202 00000410 E1C450B0        strh             r5,[r4]
+  203 00000414 E59F4100        ldr              r4,=left2_topmost
+  204 00000418 E3A0503C        ldr              r5,=0x003C
+  205 0000041C E1C450B0        strh             r5,[r4]
+  206 00000420 E59F40F8        ldr              r4,=left3_topmost
+  207 00000424 E3A0503D        ldr              r5,=0x003D
+  208 00000428 E1C450B0        strh             r5,[r4]
+  209 0000042C E59F40F0        ldr              r4,=left4_topmost
+  210 00000430 E3A0503E        ldr              r5,=0x003E
+  211 00000434 E1C450B0        strh             r5,[r4]
+  212 00000438 E59F40E8        ldr              r4,=left5_topmost
+  213 0000043C E3A0503F        ldr              r5,=0x003F
+  214 00000440 E1C450B0        strh             r5,[r4]
+  215 00000444 E59F40E0        ldr              r4,=left6_topmost
+  216 00000448 E3A05040        ldr              r5,=0x0040
+  217 0000044C E1C450B0        strh             r5,[r4]
+  218 00000450 E59F40D8        ldr              r4,=left7_topmost
+  219 00000454 E3A05041        ldr              r5,=0x0041
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+  220 00000458 E1C450B0        strh             r5,[r4]
+  221 0000045C         ;reset leftmostcolum for update enemy status
+  222 0000045C E59F40D0        ldr              r4,=left_most_colum
+  223 00000460 E3A05007        mov              r5,#7
+  224 00000464 E5C45000        strb             r5,[r4]
+  225 00000468         ;add 50pt for next level
+  226 00000468 E59F40C8        ldr              r4,=score
+  227 0000046C E5945000        ldr              r5,[r4]
+  228 00000470 E2855032        add              r5,#50
+  229 00000474         ;new led score
+  230 00000474 E59F40C0        ldr              r4,=new_led_score
+  231 00000478 E59F50C0        ldr              r5,=led_score
+  232 0000047C E4D43001 
+                       ls      ldrb             r3,[r4],#1
+  233 00000480 E3530000        cmp              r3,0x00
+  234 00000484 0A000003        beq              skip_level_clear
+  235 00000488 E4C53001        strb             r3,[r5],#1
+  236 0000048C EAFFFFFA        b                ls
+  237 00000490         
+  238 00000490         
+  239 00000490         
+  240 00000490 E8BD41F1        LDMFD            SP!,{LR,r4-r8,r0}
+  241 00000494 E12FFF1E        BX               lr
+  242 00000498         
+  243 00000498         
+  244 00000498         skip_level_clear
+  245 00000498 E8BD41F1        LDMFD            SP!,{LR,r4-r8,r0}
+  246 0000049C E12FFF1E        BX               lr
+  247 000004A0         
+  248 000004A0         
+  249 000004A0         ;#########PRINT SCORE ON SCREEN
+  250 000004A0         print_scores
+  251 000004A0 E92D4032        STMFD            SP!,{lr,r1,r4,r5}
+  252 000004A4 E59F508C        ldr              r5,=score
+  253 000004A8 E5951000        ldr              r1,[r5]
+  254 000004AC E3A0000A        mov              r0,#10
+  255 000004B0 E59F408C        ldr              r4,=displayscore
+  256 000004B4 EBFFFFFE 
+                       div     bl               div_and_mod
+  257 000004B8 E2811030        add              r1,#48
+  258 000004BC E5C4100B        strb             r1,[r4,#11]
+  259 000004C0 E3500000        cmp              r0,#0
+  260 000004C4 E1A01000        mov              r1,r0
+  261 000004C8 E3A0000A        mov              r0,#10
+  262 000004CC E2444001        sub              r4,#1
+  263 000004D0 1AFFFFF7        bne              div
+  264 000004D4 E59F2068        ldr              r2,=displayscore
+  265 000004D8 E5D23000        ldrb             r3,[r2]
+  266 000004DC EBFFFFFE        bl               output_string
+  267 000004E0         
+  268 000004E0 E8BD4032        LDMFD            SP!,{LR,r1,R4,R5}
+  269 000004E4 E12FFF1E        BX               lr
+  270 000004E8         
+  271 000004E8         
+  272 000004E8                 END
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+
+
+
+ARM Macro Assembler    Page 10 
+
+
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --apcs=interwork --depend=.\o
+bjects\gamesetting.d -o.\objects\gamesetting.o -IC:\Keil_v5\ARM\RV31\INC -IC:\K
+eil_v5\ARM\CMSIS\Include -IC:\Keil_v5\ARM\INC\Philips --predefine="__EVAL SETA 
+1" --predefine="__UVISION_VERSION SETA 524" --list=.\listings\gamesetting.lst g
+amesetting.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+GAMESETTING 00000000
+
+Symbol: GAMESETTING
+   Definitions
+      At line 1 in file gamesetting.s
+   Uses
+      None
+Comment: GAMESETTING unused
+board_loop 00000384
+
+Symbol: board_loop
+   Definitions
+      At line 145 in file gamesetting.s
+   Uses
+      At line 149 in file gamesetting.s
+Comment: board_loop used once
+check_level_clear 00000364
+
+Symbol: check_level_clear
+   Definitions
+      At line 134 in file gamesetting.s
+   Uses
+      At line 35 in file gamesetting.s
+Comment: check_level_clear used once
+displayscore 000002B4
+
+Symbol: displayscore
+   Definitions
+      At line 68 in file gamesetting.s
+   Uses
+      At line 255 in file gamesetting.s
+      At line 264 in file gamesetting.s
+
+div 000004B4
+
+Symbol: div
+   Definitions
+      At line 256 in file gamesetting.s
+   Uses
+      At line 263 in file gamesetting.s
+Comment: div used once
+enemy_initial_move 000002CC
+
+Symbol: enemy_initial_move
+   Definitions
+      At line 75 in file gamesetting.s
+   Uses
+      At line 83 in file gamesetting.s
+      At line 196 in file gamesetting.s
+
+enemy_move 000002D8
+
+Symbol: enemy_move
+   Definitions
+      At line 80 in file gamesetting.s
+   Uses
+      At line 29 in file gamesetting.s
+Comment: enemy_move used once
+game_feature 00000089
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: game_feature
+   Definitions
+      At line 38 in file gamesetting.s
+   Uses
+      At line 33 in file gamesetting.s
+Comment: game_feature used once
+game_instruction 00000000
+
+Symbol: game_instruction
+   Definitions
+      At line 37 in file gamesetting.s
+   Uses
+      At line 32 in file gamesetting.s
+Comment: game_instruction used once
+initial_move 0000033C
+
+Symbol: initial_move
+   Definitions
+      At line 118 in file gamesetting.s
+   Uses
+      At line 86 in file gamesetting.s
+Comment: initial_move used once
+level 000002A0
+
+Symbol: level
+   Definitions
+      At line 62 in file gamesetting.s
+   Uses
+      At line 26 in file gamesetting.s
+      At line 179 in file gamesetting.s
+
+lives 000002AC
+
+Symbol: lives
+   Definitions
+      At line 64 in file gamesetting.s
+   Uses
+      At line 27 in file gamesetting.s
+Comment: lives used once
+ls 0000047C
+
+Symbol: ls
+   Definitions
+      At line 232 in file gamesetting.s
+   Uses
+      At line 236 in file gamesetting.s
+Comment: ls used once
+movement_direction_control 000002C0
+
+Symbol: movement_direction_control
+   Definitions
+      At line 70 in file gamesetting.s
+   Uses
+      At line 30 in file gamesetting.s
+      At line 89 in file gamesetting.s
+
+mv_done 00000334
+
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+Symbol: mv_done
+   Definitions
+      At line 114 in file gamesetting.s
+   Uses
+      At line 108 in file gamesetting.s
+      At line 111 in file gamesetting.s
+
+mv_down 00000328
+
+Symbol: mv_down
+   Definitions
+      At line 109 in file gamesetting.s
+   Uses
+      At line 104 in file gamesetting.s
+Comment: mv_down used once
+mv_right 00000330
+
+Symbol: mv_right
+   Definitions
+      At line 112 in file gamesetting.s
+   Uses
+      At line 106 in file gamesetting.s
+Comment: mv_right used once
+new_board 00000128
+
+Symbol: new_board
+   Definitions
+      At line 59 in file gamesetting.s
+   Uses
+      At line 144 in file gamesetting.s
+Comment: new_board used once
+new_led_score 000002D0
+
+Symbol: new_led_score
+   Definitions
+      At line 77 in file gamesetting.s
+   Uses
+      At line 230 in file gamesetting.s
+Comment: new_led_score used once
+new_level 0000037C
+
+Symbol: new_level
+   Definitions
+      At line 142 in file gamesetting.s
+   Uses
+      At line 139 in file gamesetting.s
+Comment: new_level used once
+new_level_done 00000398
+
+Symbol: new_level_done
+   Definitions
+      At line 153 in file gamesetting.s
+   Uses
+      At line 150 in file gamesetting.s
+Comment: new_level_done used once
+next_move 000002C8
+
+Symbol: next_move
+   Definitions
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 72 in file gamesetting.s
+   Uses
+      At line 31 in file gamesetting.s
+      At line 90 in file gamesetting.s
+      At line 97 in file gamesetting.s
+
+press_s_to_start 00000116
+
+Symbol: press_s_to_start
+   Definitions
+      At line 39 in file gamesetting.s
+   Uses
+      At line 34 in file gamesetting.s
+Comment: press_s_to_start used once
+print_scores 000004A0
+
+Symbol: print_scores
+   Definitions
+      At line 250 in file gamesetting.s
+   Uses
+      At line 36 in file gamesetting.s
+Comment: print_scores used once
+score 000002B0
+
+Symbol: score
+   Definitions
+      At line 66 in file gamesetting.s
+   Uses
+      At line 28 in file gamesetting.s
+      At line 226 in file gamesetting.s
+      At line 252 in file gamesetting.s
+
+skip_level_clear 00000498
+
+Symbol: skip_level_clear
+   Definitions
+      At line 244 in file gamesetting.s
+   Uses
+      At line 140 in file gamesetting.s
+      At line 234 in file gamesetting.s
+
+26 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+Initial_board 00000000
+
+Symbol: Initial_board
+   Definitions
+      At line 6 in file gamesetting.s
+   Uses
+      At line 143 in file gamesetting.s
+Comment: Initial_board used once
+current_position 00000000
+
+Symbol: current_position
+   Definitions
+      At line 8 in file gamesetting.s
+   Uses
+      At line 169 in file gamesetting.s
+Comment: current_position used once
+div_and_mod 00000000
+
+Symbol: div_and_mod
+   Definitions
+      At line 24 in file gamesetting.s
+   Uses
+      At line 256 in file gamesetting.s
+Comment: div_and_mod used once
+en_amount 00000000
+
+Symbol: en_amount
+   Definitions
+      At line 7 in file gamesetting.s
+   Uses
+      At line 136 in file gamesetting.s
+      At line 165 in file gamesetting.s
+
+en_move_down 00000000
+
+Symbol: en_move_down
+   Definitions
+      At line 5 in file gamesetting.s
+   Uses
+      At line 110 in file gamesetting.s
+Comment: en_move_down used once
+en_move_left 00000000
+
+Symbol: en_move_left
+   Definitions
+      At line 4 in file gamesetting.s
+   Uses
+      At line 107 in file gamesetting.s
+      At line 123 in file gamesetting.s
+
+en_move_right 00000000
+
+Symbol: en_move_right
+   Definitions
+      At line 3 in file gamesetting.s
+   Uses
+      At line 113 in file gamesetting.s
+      At line 125 in file gamesetting.s
+
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+External symbols
+
+hex_to_int 00000000
+
+Symbol: hex_to_int
+   Definitions
+      At line 2 in file gamesetting.s
+   Uses
+      At line 181 in file gamesetting.s
+Comment: hex_to_int used once
+how_many_down_move_left 00000000
+
+Symbol: how_many_down_move_left
+   Definitions
+      At line 13 in file gamesetting.s
+   Uses
+      At line 192 in file gamesetting.s
+Comment: how_many_down_move_left used once
+led_score 00000000
+
+Symbol: led_score
+   Definitions
+      At line 25 in file gamesetting.s
+   Uses
+      At line 231 in file gamesetting.s
+Comment: led_score used once
+left2_topmost 00000000
+
+Symbol: left2_topmost
+   Definitions
+      At line 16 in file gamesetting.s
+   Uses
+      At line 203 in file gamesetting.s
+Comment: left2_topmost used once
+left3_topmost 00000000
+
+Symbol: left3_topmost
+   Definitions
+      At line 17 in file gamesetting.s
+   Uses
+      At line 206 in file gamesetting.s
+Comment: left3_topmost used once
+left4_topmost 00000000
+
+Symbol: left4_topmost
+   Definitions
+      At line 18 in file gamesetting.s
+   Uses
+      At line 209 in file gamesetting.s
+Comment: left4_topmost used once
+left5_topmost 00000000
+
+Symbol: left5_topmost
+   Definitions
+      At line 19 in file gamesetting.s
+   Uses
+      At line 212 in file gamesetting.s
+Comment: left5_topmost used once
+left6_topmost 00000000
+
+Symbol: left6_topmost
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+External symbols
+
+   Definitions
+      At line 20 in file gamesetting.s
+   Uses
+      At line 215 in file gamesetting.s
+Comment: left6_topmost used once
+left7_topmost 00000000
+
+Symbol: left7_topmost
+   Definitions
+      At line 21 in file gamesetting.s
+   Uses
+      At line 218 in file gamesetting.s
+Comment: left7_topmost used once
+left_most_colum 00000000
+
+Symbol: left_most_colum
+   Definitions
+      At line 22 in file gamesetting.s
+   Uses
+      At line 222 in file gamesetting.s
+Comment: left_most_colum used once
+left_pos 00000000
+
+Symbol: left_pos
+   Definitions
+      At line 11 in file gamesetting.s
+   Uses
+      At line 185 in file gamesetting.s
+Comment: left_pos used once
+left_topmost 00000000
+
+Symbol: left_topmost
+   Definitions
+      At line 15 in file gamesetting.s
+   Uses
+      At line 200 in file gamesetting.s
+Comment: left_topmost used once
+output_string 00000000
+
+Symbol: output_string
+   Definitions
+      At line 23 in file gamesetting.s
+   Uses
+      At line 266 in file gamesetting.s
+Comment: output_string used once
+player1 00000000
+
+Symbol: player1
+   Definitions
+      At line 14 in file gamesetting.s
+   Uses
+      At line 171 in file gamesetting.s
+Comment: player1 used once
+player_setup 00000000
+
+Symbol: player_setup
+   Definitions
+      At line 9 in file gamesetting.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+External symbols
+
+      At line 177 in file gamesetting.s
+Comment: player_setup used once
+right_pos 00000000
+
+Symbol: right_pos
+   Definitions
+      At line 12 in file gamesetting.s
+   Uses
+      At line 188 in file gamesetting.s
+Comment: right_pos used once
+rng 00000000
+
+Symbol: rng
+   Definitions
+      At line 10 in file gamesetting.s
+   Uses
+      At line 121 in file gamesetting.s
+Comment: rng used once
+24 symbols
+384 symbols in table

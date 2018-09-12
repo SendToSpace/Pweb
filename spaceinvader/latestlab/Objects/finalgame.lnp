@@ -1,0 +1,14 @@
+--cpu ARM7TDMI
+".\objects\bullet.o"
+".\objects\cwrapper.o"
+".\objects\enemy.o"
+".\objects\gameboard.o"
+".\objects\gamesetting.o"
+".\objects\libary.o"
+".\objects\player.o"
+".\objects\startup.o"
+".\objects\mothership.o"
+--rwpi --strict --scatter ".\Objects\finalgame.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\finalgame.map" -o .\Objects\finalgame.axf
