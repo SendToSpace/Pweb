@@ -1,0 +1,59 @@
+body{
+    margin: 0;
+    padding: 0;
+    background: url(bj.png) no-repeat center center fixed;
+    background-size: cover;
+}
+.box{
+ width: 450px;
+ background: rgba(0, 0, 0, 0.4);
+ padding: 40px
+ text-align : center;
+ margin: auto;
+ margin-top 5%;
+ color: white;
+ font-family; 'Century Gothic',sans-serif;
+}
+img{
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    transform: rotate(90deg);
+}
+.center{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  
+}
+.box h1{
+    front-size: 40px;
+    letter-spacing: 4px;
+    font-weight: 100;
+}
+.box h5{
+    font-size: 25px;
+    letter-spacing: 3px;
+}
+.bar{
+    width: 430px;
+    height: auto;
+    background :  rgba(0, 0, 0, 0.5);
+    position: absolute;
+}
+.bar a{
+    text-decoration: none;
+    font-size: 28px;
+    font-family: verdana;
+    font-weight:bold;
+    width:100%;
+    display:inline-black;
+    height:90px;
+   margin: 5px -1;
+    float: left;
+    background-color: black;
+    color:white;
+    text-align: left;
+    
+}
